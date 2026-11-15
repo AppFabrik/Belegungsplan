@@ -1,4 +1,4 @@
-const CACHE_NAME = 'raumcheck-pwa-v2';
+const CACHE_NAME = 'Belegungsplan';
 const ASSETS = [
   './',
   './index.html',
