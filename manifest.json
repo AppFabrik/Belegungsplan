@@ -1,6 +1,6 @@
 {
-  "name": "RaumCheck – Sportlerheim & DGH",
-  "short_name": "RaumCheck",
+  "name": "Belegungsplan",
+  "short_name": "Belegungsplan",
   "description": "Live-Belegungsplan für Sportlerheim und Dorfgemeinschaftshaus Heimburg",
   "start_url": "./index.html",
   "scope": "./",
