@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  
+  <!-- PWA & Mobile Meta-Tags (Android & iOS) -->
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="RaumCheck" />
+  
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+
+  <title>Belegungsplaner Heimburg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent-sport: #0ea5e9;
+      --accent-dgh: #8b5cf6;
+      --success: #10b981;
+      --danger: #f43f5e;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fce7f3 100%);
+      --header-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* FARBENFROHER, FREUNDLICHER HEADER */
+    header {
+      background: var(--header-gradient);
+      color: #fff;
+      padding: calc(2.2rem + env(safe-area-inset-top)) 1.25rem 3.2rem;
+      text-align: center;
+      border-bottom-left-radius: 36px;
+      border-bottom-right-radius: 36px;
+      box-shadow: 0 15px 35px -10px rgba(99, 102, 241, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 0.35rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0.4rem 0 0;
+      font-size: 0.98rem;
+      opacity: 0.95;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 620px;
+      margin: -2.2rem auto 0;
+      padding: 0 1rem 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* INSTALL-BANNER */
+    .install-banner {
+      display: none;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.35);
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      animation: slideDown 0.3s ease;
+    }
+
+    .install-banner.show { display: flex; }
+    .install-info strong { display: block; font-size: 0.95rem; color: #fef08a; }
+    .install-info span { font-size: 0.82rem; color: #eff6ff; display: block; line-height: 1.4; }
+
+    .btn-install {
+      background: #ffffff;
+      color: #1d4ed8;
+      border: none;
+      padding: 0.6rem 1.1rem;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* WEISSE, HOCHWERTIGE KARTEN */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: 0 20px 40px -15px rgba(30, 41, 59, 0.1);
+      position: relative;
+    }
+
+    h2 {
+      margin: 0 0 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }
+
+    .form-group { margin-bottom: 1.25rem; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.01em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #f8fafc;
+      transition: all 0.2s ease;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+      background: #ffffff;
+    }
+
+    /* LEBENDIGE ORTS-KARTEN (OPTIMIERT FÜR LÄNGERE TEXTE) */
+    .radio-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .radio-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 0.6rem;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.88rem;
+      background: #f8fafc;
+      color: var(--text-muted);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    .radio-card .emoji {
+      display: block;
+      font-size: 1.7rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .radio-card:active { transform: scale(0.96); }
+
+    .radio-card[data-value="Sportlerheim"].active {
+      border-color: var(--accent-sport);
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      color: #0369a1;
+      box-shadow: 0 8px 20px -6px rgba(14, 165, 233, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .radio-card[data-value="Dorfgemeinschaftshaus"].active {
+      border-color: var(--accent-dgh);
+      background: linear-gradient(135deg, #ede9fe 100%, #ddd6fe 100%);
+      color: #6d28d9;
+      box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.35);
+      transform: translateY(-2px);
+    }
+
+    /* WOCHENTAGS-CHIPS */
+    .days-box {
+      background: #f1f5f9;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      animation: slideDown 0.25s ease;
+    }
+
+    .days-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .day-chip {
+      padding: 0.55rem 0.85rem;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .day-chip.selected {
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .days-hint {
+      font-size: 0.82rem;
+      margin-top: 0.6rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .days-hint.warn { color: #e11d48; }
+    .days-hint.ok { color: #059669; }
+
+    /* ACTION BUTTON */
+    .btn-submit {
+      width: 100%;
+      padding: 1.1rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #ec4899 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.45);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(147, 51, 234, 0.55);
+    }
+
+    .btn-submit:active:not(:disabled) { transform: scale(0.98); }
+    .btn-submit:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; opacity: 0.7; }
+
+    /* STATUS MELDUNGEN */
+    .alert {
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.25rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      display: none;
+    }
+    .alert.error { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; display: block; }
+
+    /* LIVE KOLLISIONS-VORSCHAU */
+    .preview-list {
+      max-height: 180px;
+      overflow-y: auto;
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .preview-item:last-child { border-bottom: none; }
+
+    .tag-ok {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .tag-conflict {
+      background: #ffe4e6;
+      color: #9f1239;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge-pill">✨ Live-Belegungsplan</div>
+  <h1>Belegungsplaner Heimburg</h1>
+  <p>Für Sportlerheim & Dorfgemeinschaftshaus Heimburg</p>
+</header>
+
+<main>
+  <!-- INSTALL-BANNER (Android + iOS) -->
+  <div id="installBanner" class="install-banner">
+    <div class="install-info">
+      <strong id="installTitle">📲 Als App auf dem Handy speichern</strong>
+      <span id="installDesc">Direkt vom Startbildschirm starten wie eine echte App.</span>
+    </div>
+    <button type="button" id="installBtn" class="btn-install">Installieren</button>
+  </div>
+
+  <!-- BUCHUNGSFORMULAR -->
+  <div class="card">
+    <h2>🎈 Neue Belegung eintragen</h2>
+    <div id="statusBox" class="alert"></div>
+
+    <form id="bookingForm">
+      <div class="form-group">
+        <label>Veranstaltungsort *</label>
+        <div class="radio-cards">
+          <div class="radio-card active" data-value="Sportlerheim">
+            <span class="emoji">⚽</span>
+            Sportlerheim
+          </div>
+          <div class="radio-card" data-value="Dorfgemeinschaftshaus">
+            <span class="emoji">🏛️</span>
+            Dorf-gemeinschaftshaus
+          </div>
+        </div>
+        <input type="hidden" id="ort" value="Sportlerheim" required />
+      </div>
+
+      <div class="grid">
+        <div class="form-group">
+          <label for="verein">Verein / Sportgruppe *</label>
+          <input type="text" id="verein" placeholder="z. B. Jugendfeuerwehr" required />
+        </div>
+        <div class="form-group">
+          <label for="email">E-Mail für Bestätigung *</label>
+          <input type="email" id="email" placeholder="name@beispiel.de" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="haeufigkeit">Häufigkeit der Nutzung *</label>
+        <select id="haeufigkeit" required>
+          <option value="Täglich">Täglich</option>
+          <option value="2 x wöchentlich">2 x wöchentlich</option>
+          <option value="3 x wöchentlich">3 x wöchentlich</option>
+          <option value="4 x wöchentlich">4 x wöchentlich</option>
+          <option value="5 x wöchentlich">5 x wöchentlich</option>
+          <option value="14-tägig">14-tägig</option>
+          <option value="Monatlich">Monatlich</option>
+          <option value="Vierteljährlich">Vierteljährlich</option>
+          <option value="Halbjährlich">Halbjährlich</option>
+          <option value="Jährlich">Jährlich</option>
+        </select>
+      </div>
+
+      <!-- WOCHENTAGS-CHIPS (bei 2x bis 5x wöchentlich) -->
+      <div class="days-box" id="daysBox" style="display: none;">
+        <label id="daysLabel">Wochentage auswählen *</label>
+        <div class="days-grid" id="daysGrid">
+          <div class="day-chip" data-day="Montag">Montag</div>
+          <div class="day-chip" data-day="Dienstag">Dienstag</div>
+          <div class="day-chip" data-day="Mittwoch">Mittwoch</div>
+          <div class="day-chip" data-day="Donnerstag">Donnerstag</div>
+          <div class="day-chip" data-day="Freitag">Freitag</div>
+          <div class="day-chip" data-day="Samstag">Samstag</div>
+          <div class="day-chip" data-day="Sonntag">Sonntag</div>
+        </div>
+        <div id="daysHint" class="days-hint">Bitte die entsprechenden Tage antippen.</div>
+      </div>
+
+      <div class="grid">
+        <div class="form-group">
+          <label for="startzeit">Uhrzeit von *</label>
+          <input type="time" id="startzeit" required />
+        </div>
+        <div class="form-group">
+          <label for="endzeit">Uhrzeit bis *</label>
+          <input type="time" id="endzeit" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="bemerkungen">Bemerkungen (optional)</label>
+        <textarea id="bemerkungen" placeholder="z. B. Raumaufteilung, Ansprechpartner vor Ort..."></textarea>
+      </div>
+
+      <!-- Live-Kollisionsprüfung -->
+      <div id="previewContainer" style="display:none;">
+        <label>🔍 Verfügbarkeits-Check:</label>
+        <div id="previewList" class="preview-list"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Belegung verbindlich eintragen 🚀</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  // =========================================================================
+  // KONFIGURATION
+  // =========================================================================
+  const CONFIG = {
+    MAKE_WEBHOOK_URL: "https://hook.eu1.make.com/n67xcfnadthh7pue4fzggwk4sdne12qi",
+    GOOGLE_SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/DEINE_SHEET_ID/pub?gid=0&single=true&output=csv"
+  };
+
+  const WEEKLY_COUNTS = {
+    "2 x wöchentlich": 2,
+    "3 x wöchentlich": 3,
+    "4 x wöchentlich": 4,
+    "5 x wöchentlich": 5
+  };
+
+  let existingBookings = [];
+  let selectedDays = [];
+  let deferredPrompt = null;
+
+  // =========================================================================
+  // INSTALL-LOGIK (Android & iOS)
+  // =========================================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW Info:', err));
+    });
+  }
+
+  const installBanner = document.getElementById('installBanner');
+  const installBtn = document.getElementById('installBtn');
+  const installTitle = document.getElementById('installTitle');
+  const installDesc = document.getElementById('installDesc');
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isStandalone) {
+      installBanner.classList.add('show');
+    }
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBanner.classList.remove('show');
+      }
+      deferredPrompt = null;
+    } else if (isIOS) {
+      alert('So installierst du die App auf dem iPhone/iPad:\n\n1. Tippe unten in Safari auf das Teilen-Symbol (Viereck mit Pfeil nach oben ⬆️).\n2. Scrolle und wähle „Zum Home-Bildschirm“ ➕.\n3. Tippe oben rechts auf „Hinzufügen“.');
+    }
+  });
+
+  if (isIOS && !isStandalone) {
+    installTitle.textContent = "📲 App auf dem iPhone installieren";
+    installDesc.textContent = "Tippe auf „Anleitung“ für den Startbildschirm.";
+    installBtn.textContent = "Anleitung";
+    installBanner.classList.add('show');
+  }
+
+  window.addEventListener('appinstalled', () => {
+    installBanner.classList.remove('show');
+  });
+
+  // =========================================================================
+  // UI-STEUERUNG & DATENVERARBEITUNG
+  // =========================================================================
+  document.querySelectorAll('.radio-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      document.getElementById('ort').value = card.dataset.value;
+      updatePreview();
+    });
+  });
+
+  const haeufigkeitSelect = document.getElementById('haeufigkeit');
+  const daysBox = document.getElementById('daysBox');
+  const daysLabel = document.getElementById('daysLabel');
+  const daysHint = document.getElementById('daysHint');
+
+  haeufigkeitSelect.addEventListener('change', () => {
+    const reqCount = WEEKLY_COUNTS[haeufigkeitSelect.value] || 0;
+    if (reqCount > 0) {
+      daysBox.style.display = 'block';
+      daysLabel.textContent = `Bitte genau ${reqCount} Wochentage auswählen *`;
+    } else {
+      daysBox.style.display = 'none';
+      selectedDays = [];
+      document.querySelectorAll('.day-chip').forEach(ch => ch.classList.remove('selected'));
+    }
+    updatePreview();
+  });
+
+  document.querySelectorAll('.day-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const day = chip.dataset.day;
+      if (selectedDays.includes(day)) {
+        selectedDays = selectedDays.filter(d => d !== day);
+        chip.classList.remove('selected');
+      } else {
+        selectedDays.push(day);
+        chip.classList.add('selected');
+      }
+      const order = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+      selectedDays.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+      updatePreview();
+    });
+  });
+
+  ['startzeit', 'endzeit'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updatePreview);
+  });
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+    return lines.slice(1).map(line => {
+      const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = cols[i] || '');
+      return obj;
+    });
+  }
+
+  async function loadBookings() {
+    if (CONFIG.GOOGLE_SHEET_CSV_URL.includes("DEINE_SHEET_ID")) return;
+    try {
+      const response = await fetch(CONFIG.GOOGLE_SHEET_CSV_URL + "&t=" + Date.now());
+      const csvText = await response.text();
+      existingBookings = parseCSV(csvText).filter(b => b.Ort && b.Startzeit && b.Endzeit);
+      updatePreview();
+    } catch (err) {
+      console.warn("Konnte Belegungen im Hintergrund nicht laden:", err);
+    }
+  }
+
+  function toMinutes(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function getBookingDays(haeufigkeit, wochentageStr) {
+    const allDays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+    if (haeufigkeit === "Täglich") return allDays;
+    if (wochentageStr) {
+      const parsed = wochentageStr.split(',').map(s => s.trim()).filter(d => allDays.includes(d));
+      if (parsed.length > 0) return parsed;
+    }
+    return [];
+  }
+
+  function findConflicts(ort, haeufigkeit, days, startzeit, endzeit) {
+    const newStart = toMinutes(startzeit);
+    const newEnd = toMinutes(endzeit);
+    const newDays = getBookingDays(haeufigkeit, days.join(', '));
+
+    return existingBookings.filter(b => {
+      if (b.Ort !== ort) return false;
+      const exStart = toMinutes(b.Startzeit);
+      const exEnd = toMinutes(b.Endzeit);
+      const timeOverlap = (newStart < exEnd && newEnd > exStart);
+      if (!timeOverlap) return false;
+
+      const exDays = getBookingDays(b.Haeufigkeit, b.Wochentage);
+      if (newDays.length > 0 && exDays.length > 0) {
+        return newDays.some(d => exDays.includes(d));
+      }
+      return true;
+    });
+  }
+
+  function updatePreview() {
+    const ort = document.getElementById('ort').value;
+    const haeufigkeit = haeufigkeitSelect.value;
+    const startzeit = document.getElementById('startzeit').value;
+    const endzeit = document.getElementById('endzeit').value;
+
+    const previewContainer = document.getElementById('previewContainer');
+    const previewList = document.getElementById('previewList');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const reqCount = WEEKLY_COUNTS[haeufigkeit] || 0;
+    let daysValid = true;
+    if (reqCount > 0) {
+      if (selectedDays.length !== reqCount) {
+        daysValid = false;
+        daysHint.className = "days-hint warn";
+        daysHint.textContent = `Aktuell ${selectedDays.length} von ${reqCount} Tagen gewählt.`;
+      } else {
+        daysHint.className = "days-hint ok";
+        daysHint.textContent = `✅ Perfekt: ${selectedDays.join(', ')}`;
+      }
+    }
+
+    if (!startzeit || !endzeit) {
+      previewContainer.style.display = 'none';
+      submitBtn.disabled = !daysValid;
+      return { isValid: false };
+    }
+
+    if (toMinutes(endzeit) <= toMinutes(startzeit)) {
+      previewContainer.style.display = 'block';
+      previewList.innerHTML = '<div class="tag-conflict">⚠️ Endzeit muss nach der Startzeit liegen!</div>';
+      submitBtn.disabled = true;
+      return { isValid: false };
+    }
+
+    const conflicts = findConflicts(ort, haeufigkeit, selectedDays, startzeit, endzeit);
+    previewContainer.style.display = 'block';
+
+    if (conflicts.length > 0) {
+      previewList.innerHTML = conflicts.map(c => `
+        <div class="preview-item">
+          <span><strong>${escapeHTML(c.Verein_Gruppe)}</strong> (${c.Startzeit}–${c.Endzeit})</span>
+          <span class="tag-conflict">❌ Überschneidung</span>
+        </div>
+      `).join('');
+      submitBtn.disabled = true;
+      return { isValid: false };
+    } else {
+      const daySummary = reqCount > 0 ? ` (${selectedDays.join(', ')})` : '';
+      previewList.innerHTML = `
+        <div class="preview-item">
+          <span><strong>${escapeHTML(ort)}</strong> · ${escapeHTML(haeufigkeit)}${daySummary} · ${startzeit}–${endzeit} Uhr</span>
+          <span class="tag-ok">✅ Frei</span>
+        </div>
+      `;
+      submitBtn.disabled = !daysValid;
+      return { isValid: daysValid };
+    }
+  }
+
+  document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const statusBox = document.getElementById('statusBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const haeufigkeit = haeufigkeitSelect.value;
+    const reqCount = WEEKLY_COUNTS[haeufigkeit] || 0;
+    if (reqCount > 0 && selectedDays.length !== reqCount) {
+      statusBox.className = "alert error";
+      statusBox.textContent = `Bitte wähle genau ${reqCount} Wochentage für „${haeufigkeit}“ aus.`;
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Prüfe Verfügbarkeit...";
+    await loadBookings();
+
+    const check = updatePreview();
+    if (!check.isValid) {
+      statusBox.className = "alert error";
+      statusBox.textContent = "Eintragung nicht möglich: Bitte prüfe Uhrzeiten, Wochentage oder Überschneidungen.";
+      submitBtn.textContent = "Belegung verbindlich eintragen 🚀";
+      return;
+    }
+
+    let wochentageText = "-";
+    if (haeufigkeit === "Täglich") {
+      wochentageText = "Alle Tage (Mo–So)";
+    } else if (reqCount > 0) {
+      wochentageText = selectedDays.join(", ");
+    }
+
+    const payload = {
+      buchungs_id: "BELEG-" + Date.now(),
+      zeitstempel: new Date().toLocaleString("de-DE"),
+      ort: document.getElementById('ort').value,
+      verein_gruppe: document.getElementById('verein').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      haeufigkeit: haeufigkeit,
+      wochentage: wochentageText,
+      startzeit: document.getElementById('startzeit').value,
+      endzeit: document.getElementById('endzeit').value,
+      bemerkungen: document.getElementById('bemerkungen').value.trim()
+    };
+
+    try {
+      submitBtn.textContent = "Wird eingetragen...";
+      const res = await fetch(CONFIG.MAKE_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Server-Fehler");
+
+      statusBox.className = "alert success";
+      statusBox.textContent = `🎉 Erfolgreich eingetragen! Bestätigung ist unterwegs an ${payload.email}.`;
+      
+      document.getElementById('bookingForm').reset();
+      document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('.radio-card[data-value="Sportlerheim"]').classList.add('active');
+      document.getElementById('ort').value = "Sportlerheim";
+      selectedDays = [];
+      document.querySelectorAll('.day-chip').forEach(ch => ch.classList.remove('selected'));
+      daysBox.style.display = 'none';
+      document.getElementById('previewContainer').style.display = 'none';
+    } catch (err) {
+      statusBox.className = "alert error";
+      statusBox.textContent = "Fehler beim Senden an Make. Bitte Verbindung oder Webhook-URL prüfen.";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Belegung verbindlich eintragen 🚀";
+    }
+  });
+
+  function escapeHTML(str) {
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  loadBookings();
+</script>
+</body>
+</html>
